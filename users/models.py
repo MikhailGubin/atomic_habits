@@ -6,9 +6,7 @@ class User(AbstractUser):
     """Переопределяю модель 'Пользователь'"""
 
     username = None
-    email = models.EmailField(
-        unique=True, verbose_name="Почта", help_text="Укажите почту"
-    )
+    email = models.EmailField(unique=True, verbose_name="Почта", help_text="Укажите почту")
     avatar = models.ImageField(
         upload_to="users/avatars/",
         verbose_name="Аватар",
