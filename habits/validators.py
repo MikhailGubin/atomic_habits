@@ -21,8 +21,12 @@ def validate_periodicity_for_habit(periodicity_days, is_pleasant):
     """
     Валидирует периодичность выполнения привычки.
     """
-    if not is_pleasant and not (1 <= periodicity_days <= 7):
-        raise ValidationError({"periodicity_days": "Периодичность выполнения привычки должна быть от 1 до 7 дней"})
+    # Устанавливаем значение по умолчанию, если оно None
+    actual_periodicity = periodicity_days if periodicity_days is not None else 1
+
+    if not is_pleasant:
+        if not (1 <= actual_periodicity <= 7):
+            raise ValidationError({"periodicity_days": "Периодичность выполнения привычки должна быть от 1 до 7 дней"})
 
 
 def validate_choose_reward_or_related_habit(is_pleasant, reward, related_habit):

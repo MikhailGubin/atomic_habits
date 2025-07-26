@@ -85,7 +85,7 @@ class HabitTestCase(APITestCase):
             "place": "на стадионе",
             "owner": self.user.id,
             "reward": "Съесть мороженное",
-            "periodicity_days": 3
+            "periodicity_days": 3,
         }
 
         # Создание другого Пользователя
@@ -123,9 +123,9 @@ class HabitTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Habit.objects.count(), 3)
 
-        created_habit = Habit.objects.get(action=self.habit_data['action'])
-        self.assertEqual(created_habit.place, self.habit_data['place'])
-        self.assertEqual(created_habit.duration, self.habit_data['duration'])
+        created_habit = Habit.objects.get(action=self.habit_data["action"])
+        self.assertEqual(created_habit.place, self.habit_data["place"])
+        self.assertEqual(created_habit.duration, self.habit_data["duration"])
         self.assertEqual(created_habit.owner, self.user)
 
     def test_create_habit_missing_required_fields(self):
@@ -268,7 +268,6 @@ class HabitTestCase(APITestCase):
         self.assertEqual(len(data_page2["results"]), 1)
         self.assertIn("previous", data_page2)
         self.assertIsNotNone(data_page2.get("previous"))
-
 
     def test_list_public_habits(self):
         """Проверяет получение списка публичных привычек."""

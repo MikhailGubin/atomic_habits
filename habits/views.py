@@ -16,7 +16,9 @@ class HabitCreateAPIView(CreateAPIView):
 
     def perform_create(self, serializer):
         """Добавляет текущего пользователя в поле "Владелец" модели "Привычка" """
-        serializer.save(owner=self.request.user)
+        habit = serializer.save(owner=self.request.user)
+        habit.owner = self.request.user
+        habit.save()
 
 
 class HabitOwnerListAPIView(ListAPIView):
