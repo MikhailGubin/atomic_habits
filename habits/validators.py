@@ -1,8 +1,5 @@
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
-
-forbidden_words = []
 
 
 def validate_duration_for_useful_habit(duration, is_pleasant):
@@ -12,24 +9,22 @@ def validate_duration_for_useful_habit(duration, is_pleasant):
     if not is_pleasant:  # Валидация только для полезных привычек
         if duration is None:
             raise serializers.ValidationError(
-                {"duration": "Для полезной привычки необходимо указать время на выполнение."}
+                {"duration": "Для полезной привычки необходимо указать время на выполнение"}
             )
         if duration > 120:  # duration - это минуты
             raise ValidationError(
-                {"duration": "Время на выполнение полезной привычки не должно превышать 120 секунд."}
+                {"duration": "Время на выполнение полезной привычки не должно превышать 120 секунд"}
             )
     if is_pleasant and duration is not None:
-        raise ValidationError({"duration": "Приятная привычка не может иметь время на выполнение."})
+        raise ValidationError({"duration": "Приятная привычка не может иметь время на выполнение"})
 
 
-def validate_periodicity_for_habit(periodicity_days):
+def validate_periodicity_for_habit(periodicity_days, is_pleasant):
     """
     Валидирует периодичность выполнения привычки.
     """
-    if periodicity_days is None:
-        raise ValidationError({"periodicity_days": "Периодичность выполнения привычки должна быть указана."})
-    if not (1 <= periodicity_days <= 7):
-        raise ValidationError({"periodicity_days": "Периодичность выполнения привычки должна быть от 1 до 7 дней."})
+    if not is_pleasant and not (1 <= periodicity_days <= 7):
+        raise ValidationError({"periodicity_days": "Периодичность выполнения привычки должна быть от 1 до 7 дней"})
 
 
 def validate_choose_reward_or_related_habit(is_pleasant, reward, related_habit):

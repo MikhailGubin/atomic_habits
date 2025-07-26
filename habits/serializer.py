@@ -2,12 +2,9 @@ from rest_framework import serializers
 
 from habits.models import Habit  # Импортируем вашу модель Habit
 from habits.validators import (
-    validate_choose_reward_or_related_habit,
-    validate_duration_for_useful_habit,
-    validate_periodicity_for_habit,
-    validate_pleasant_habit_without_reward_and_related_habit,
-    validate_related_habit_must_be_pleasant
-)
+
+    validate_choose_reward_or_related_habit, validate_pleasant_habit_without_reward_and_related_habit,
+    validate_related_habit_must_be_pleasant, validate_periodicity_for_habit, validate_duration_for_useful_habit)
 
 
 class HabitSerializer(serializers.ModelSerializer):
@@ -24,11 +21,10 @@ class HabitSerializer(serializers.ModelSerializer):
         label="Связанная привычка",
         help_text="Приятная привычка, которая выполняется в качестве вознаграждения.",
     )
-    duration = serializers.IntegerField(validators=[validate_duration_for_useful_habit], required=False)
-    periodicity_days = serializers.IntegerField(validators=[validate_periodicity_for_habit], required=False)
 
     class Meta:
         model = Habit
+
         fields = [
             "id",
             "owner",
@@ -52,6 +48,8 @@ class HabitSerializer(serializers.ModelSerializer):
         is_pleasant = data.get("is_pleasant", self.instance.is_pleasant if self.instance else False)
         reward = data.get("reward", self.instance.reward if self.instance else None)
         related_habit = data.get("related_habit", self.instance.related_habit if self.instance else None)
+        duration = data.get('duration', self.instance.duration if self.instance else None)
+        periodicity_days = data.get('periodicity_days', self.instance.periodicity_days if self.instance else None)
 
         # 1. Исключить одновременный выбор связанной привычки и указания вознаграждения.
         validate_choose_reward_or_related_habit(is_pleasant, reward, related_habit)
@@ -61,5 +59,11 @@ class HabitSerializer(serializers.ModelSerializer):
 
         # 3. В связанные привычки могут попадать только привычки с признаком приятной привычки.
         validate_related_habit_must_be_pleasant(related_habit)
+
+        # 4. Время выполнения полезных привычек должно быть не больше 120 секунд.
+        validate_duration_for_useful_habit(duration, is_pleasant)
+
+        # 5. Нельзя выполнять полезную привычку реже, чем 1 раз в 7 дней.
+        validate_periodicity_for_habit(periodicity_days, is_pleasant)
 
         return data
