@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils import timezone
 
+
 class Habit(models.Model):
     """Модель 'Привычка'"""
 
-    user = models.ForeignKey(
+    owner = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
         verbose_name="Пользователь",
@@ -38,9 +39,9 @@ class Habit(models.Model):
 
     # --- Поля, зависящие от типа привычки (полезная/приятная) ---
     # Время на выполнение: только для полезных привычек
-    duration_minutes = models.PositiveSmallIntegerField(
-        verbose_name="Время на выполнение (мин.)",
-        help_text="Время, которое предположительно потратит пользователь на выполнение привычки (не более 2 минут).",
+    duration = models.PositiveSmallIntegerField(
+        verbose_name="Время на выполнение (сек.)",
+        help_text="Время, которое предположительно потратит пользователь на выполнение привычки (не более 120 секунд).",
         blank=True,  # Может быть пустым, если is_pleasant=True
         null=True,  # Может быть NULL в БД
     )
@@ -73,10 +74,10 @@ class Habit(models.Model):
         verbose_name = "Привычка"
         verbose_name_plural = "Привычки"
         # Уникальность связки пользователь-действие-время-место, если нужно избежать дубликатов
-        unique_together = ("user", "action", "time", "place")
+        unique_together = ("owner", "action", "time", "place")
 
     def __str__(self):
-        return f"Я, {self.user.email}, буду {self.action} в {self.time} в {self.place}"
+        return f"Я, {self.owner.email}, буду {self.action} в {self.time} в {self.place}"
 
 
 class HabitCompletion(models.Model):
