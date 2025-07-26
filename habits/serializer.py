@@ -2,9 +2,12 @@ from rest_framework import serializers
 
 from habits.models import Habit  # Импортируем вашу модель Habit
 from habits.validators import (
-
-    validate_choose_reward_or_related_habit, validate_pleasant_habit_without_reward_and_related_habit,
-    validate_related_habit_must_be_pleasant, validate_periodicity_for_habit, validate_duration_for_useful_habit)
+    validate_choose_reward_or_related_habit,
+    validate_duration_for_useful_habit,
+    validate_periodicity_for_habit,
+    validate_pleasant_habit_without_reward_and_related_habit,
+    validate_related_habit_must_be_pleasant
+)
 
 
 class HabitSerializer(serializers.ModelSerializer):
@@ -48,8 +51,8 @@ class HabitSerializer(serializers.ModelSerializer):
         is_pleasant = data.get("is_pleasant", self.instance.is_pleasant if self.instance else False)
         reward = data.get("reward", self.instance.reward if self.instance else None)
         related_habit = data.get("related_habit", self.instance.related_habit if self.instance else None)
-        duration = data.get('duration', self.instance.duration if self.instance else None)
-        periodicity_days = data.get('periodicity_days', self.instance.periodicity_days if self.instance else None)
+        duration = data.get("duration", self.instance.duration if self.instance else None)
+        periodicity_days = data.get("periodicity_days", self.instance.periodicity_days if self.instance else None)
 
         # 1. Исключить одновременный выбор связанной привычки и указания вознаграждения.
         validate_choose_reward_or_related_habit(is_pleasant, reward, related_habit)

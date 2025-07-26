@@ -12,9 +12,7 @@ def validate_duration_for_useful_habit(duration, is_pleasant):
                 {"duration": "Для полезной привычки необходимо указать время на выполнение"}
             )
         if duration > 120:  # duration - это минуты
-            raise ValidationError(
-                {"duration": "Время на выполнение полезной привычки не должно превышать 120 секунд"}
-            )
+            raise ValidationError({"duration": "Время на выполнение полезной привычки не должно превышать 120 секунд"})
     if is_pleasant and duration is not None:
         raise ValidationError({"duration": "Приятная привычка не может иметь время на выполнение"})
 

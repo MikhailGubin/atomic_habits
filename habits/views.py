@@ -12,7 +12,7 @@ class HabitCreateAPIView(CreateAPIView):
 
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
         """Добавляет текущего пользователя в поле "Владелец" модели "Привычка" """
