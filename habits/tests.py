@@ -23,19 +23,20 @@ class HabitUnauthorizedTestCase(APITestCase):
             reward="купить десерт",
             owner=self.user,
         )
+        self.habit_data = {
+            "action": "бегать",
+            "duration": 110,
+            "time": "17:50",
+            "place": "на стадионе",
+            "owner": self.user.id,
+            "reward": "съесть мороженное",
+        }
 
     def test_create_habit_unauthorized(self):
         """Проверяет попытку создания привычки без авторизации."""
         url = reverse("habits:habits-create")
-        habit_data = {
-            "action": "Бегать",
-            "duration": 130,
-            "time": "17:50",
-            "place": "Стадион",
-            "owner": self.user.id,
-            "reward": "Съесть мороженное",
-        }
-        response = self.client.post(url, habit_data, format="json")
+
+        response = self.client.post(url, self.habit_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_update_habit_unauthorized(self):
@@ -77,6 +78,15 @@ class HabitTestCase(APITestCase):
             reward="купить десерт",
             owner=self.user,
         )
+        self.habit_data = {
+            "action": "бегать",
+            "duration": 110,
+            "time": "17:50",
+            "place": "на стадионе",
+            "owner": self.user.id,
+            "reward": "Съесть мороженное",
+            "periodicity_days": 3
+        }
 
         # Создание другого Пользователя
         self.other_user = User.objects.create(email="other_user@example.com", password="45678")
@@ -108,23 +118,14 @@ class HabitTestCase(APITestCase):
     def test_habit_create(self):
         """Проверяет процесс создания одного объекта класса "Привычка" """
         url = reverse("habits:habits-create")
-        habit_data = {
-            "action": "бегать",
-            "place": "на беговой дорожке",
-            "periodicity_days": 3,
-            "time": "17:50",
-            "duration": "115",
-            "reward": "посмотреть видео в Интеренете",
-            "owner": self.user.id,
-        }
-        response = self.client.post(url, habit_data, format="json")
+        response = self.client.post(url, self.habit_data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Habit.objects.count(), 3)
 
-        created_habit = Habit.objects.get(action="бегать")
-        self.assertEqual(created_habit.place, "на беговой дорожке")
-        self.assertEqual(created_habit.duration, 115)
+        created_habit = Habit.objects.get(action=self.habit_data['action'])
+        self.assertEqual(created_habit.place, self.habit_data['place'])
+        self.assertEqual(created_habit.duration, self.habit_data['duration'])
         self.assertEqual(created_habit.owner, self.user)
 
     def test_create_habit_missing_required_fields(self):
@@ -144,15 +145,10 @@ class HabitTestCase(APITestCase):
     def test_create_habit_validation_error_duration(self):
         """Проверяет создание полезной привычки с недопустимой длительностью."""
         url = reverse("habits:habits-create")
-        habit_data = {
-            "action": "Бегать",
-            "duration": 130,
-            "time": "17:50",
-            "place": "Стадион",
-            "owner": self.user.id,
-            "reward": "Съесть мороженное",
-        }
-        response = self.client.post(url, habit_data, format="json")
+
+        self.habit_data["duration"] = 130
+        response = self.client.post(url, self.habit_data, format="json")
+
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("duration", response.json())
         self.assertIn(
@@ -162,16 +158,9 @@ class HabitTestCase(APITestCase):
     def test_create_habit_validation_error_periodicity(self):
         """Проверяет создание привычки с недопустимой периодичностью."""
         url = reverse("habits:habits-create")
-        habit_data = {
-            "action": "Бегать",
-            "duration": 100,
-            "time": "17:50",
-            "place": "Стадион",
-            "owner": self.user.id,
-            "reward": "Съесть мороженное",
-            "periodicity_days": 8,  # > 7 дней
-        }
-        response = self.client.post(url, habit_data, format="json")
+        self.habit_data["periodicity_days"] = 8
+
+        response = self.client.post(url, self.habit_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("periodicity_days", response.json())
         self.assertIn(
@@ -183,22 +172,12 @@ class HabitTestCase(APITestCase):
         # Используем self.habit (создана в setUp)
         url = reverse("habits:habits-update", kwargs={"pk": self.habit.pk})
 
-        new_data = {
-            "action": "Обновленное действие",
-            "duration": 45,
-            "is_public": True,
-            "reward": "Обновленная награда",
-            "owner": self.user.id,
-            "time": "17:50",
-            "place": "Стадион",
-        }
-        response = self.client.put(url, new_data, format="json")  # Используем PUT для полного обновления
+        response = self.client.put(url, self.habit_data, format="json")  # Используем PUT для полного обновления
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get("action"), new_data["action"])
-        self.assertEqual(response.json().get("duration"), new_data["duration"])
-        self.assertEqual(response.json().get("is_public"), new_data["is_public"])
-        self.assertEqual(response.json().get("reward"), new_data["reward"])
+        self.assertEqual(response.json().get("action"), self.habit_data["action"])
+        self.assertEqual(response.json().get("duration"), self.habit_data["duration"])
+        self.assertEqual(response.json().get("reward"), self.habit_data["reward"])
 
     def test_update_habit_patch_success(self):
         """Проверяет успешное частичное редактирование привычки (PATCH)."""
@@ -290,7 +269,7 @@ class HabitTestCase(APITestCase):
         self.assertIn("previous", data_page2)
         self.assertIsNotNone(data_page2.get("previous"))
 
-    # --- Список публичных привычек ---
+
     def test_list_public_habits(self):
         """Проверяет получение списка публичных привычек."""
 

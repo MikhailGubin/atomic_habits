@@ -78,7 +78,7 @@ class Habit(models.Model):
         unique_together = ("owner", "action", "time", "place")
 
     def __str__(self):
-        return f"Я, {self.owner.email}, буду {self.action} в {self.time} в {self.place}"
+        return f"Я, {self.owner.email}, буду {self.action} в {self.time} {self.place}"
 
 
 class HabitCompletion(models.Model):
