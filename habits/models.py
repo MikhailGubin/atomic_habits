@@ -79,39 +79,3 @@ class Habit(models.Model):
 
     def __str__(self):
         return f"Я, {self.owner.email}, буду {self.action} в {self.time} {self.place}"
-
-
-class HabitCompletion(models.Model):
-    """Модель для отслеживания выполнения привычек"""
-
-    user = models.ForeignKey(
-        "users.User",
-        on_delete=models.CASCADE,
-        verbose_name="Пользователь",
-        help_text="Пользователь, выполнивший привычку",
-        related_name="habit_completions",
-    )
-    habit = models.ForeignKey(
-        Habit,
-        on_delete=models.CASCADE,
-        verbose_name="Привычка",
-        help_text="Выполненная привычка",
-        related_name="completions",
-    )
-    date_completed = models.DateField(
-        default=timezone.now,  # Дата выполнения по умолчанию - текущая
-        verbose_name="Дата выполнения",
-        help_text="Дата, когда привычка была выполнена",
-    )
-    is_completed = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = "Выполнение привычки"
-        verbose_name_plural = "Выполнения привычек"
-        # Гарантируем, что пользователь может отметить привычку как выполненную только один раз в день.
-        unique_together = ("user", "habit", "date_completed")
-        # Для удобства сортировки и запросов
-        ordering = ["-date_completed"]
-
-    def __str__(self):
-        return f"{self.user.email} выполнил '{self.habit.action}' {self.date_completed}"
