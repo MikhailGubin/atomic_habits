@@ -105,8 +105,6 @@ LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Europe/Moscow"
 
-# USE_I18N = True
-
 USE_TZ = True
 
 STATIC_URL = "static/"
@@ -156,11 +154,12 @@ TELEGRAM_URL = "https://api.telegram.org/bot"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
+    os.getenv("FRONTEND_SERVER_URL"),  # адрес вашего фронтенд-сервера FRONTEND_SERVER_URL
+    os.getenv("BACKEND_SERVER_URL"),  # адрес бэкенд-сервера
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",
+    os.getenv("BACKEND_SERVER_URL"),  # адрес бэкенд-сервера
 ]
 
 SWAGGER_SETTINGS = {

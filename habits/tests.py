@@ -28,7 +28,6 @@ class HabitUnauthorizedTestCase(APITestCase):
             "duration": 110,
             "time": "17:50",
             "place": "на стадионе",
-            "owner": self.user.id,
             "reward": "съесть мороженное",
         }
 
@@ -83,7 +82,6 @@ class HabitTestCase(APITestCase):
             "duration": 110,
             "time": "17:50",
             "place": "на стадионе",
-            "owner": self.user.id,
             "reward": "Съесть мороженное",
             "periodicity_days": 3,
         }

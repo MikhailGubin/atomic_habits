@@ -41,6 +41,7 @@ class HabitSerializer(serializers.ModelSerializer):
             "related_habit",
             "periodicity_days",
         ]
+        read_only_fields = ["owner"]
 
     # --- Валидация на уровне объекта (методы validate) ---
     def validate(self, data):
