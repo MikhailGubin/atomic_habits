@@ -154,7 +154,7 @@ TELEGRAM_URL = "https://api.telegram.org/bot"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 CORS_ALLOWED_ORIGINS = [
-    os.getenv("FRONTEND_SERVER_URL"),  # адрес вашего фронтенд-сервера FRONTEND_SERVER_URL
+    os.getenv("FRONTEND_SERVER_URL"),  # адрес вашего фронтенд-сервера
     os.getenv("BACKEND_SERVER_URL"),  # адрес бэкенд-сервера
 ]
 
