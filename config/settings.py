@@ -79,7 +79,7 @@ DATABASES = {
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("HOST"),
+        "HOST": os.getenv('POSTGRES_HOST', 'host.docker.internal'),
         "PORT": os.getenv("POSTGRES_PORT", default="5432"),
     }
 }
@@ -153,7 +153,10 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-CORS_ALLOWED_ORIGINS = ["*"]
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1",
+    "http://127.0.0.1:8000",
+]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1",
