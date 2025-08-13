@@ -1,0 +1,89 @@
+services:
+  web:
+    build: .
+    command: sh -c "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8080"
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DATABASE_DEBUG}
+      - DB_HOST=${HOST}
+      - DB_PORT=${POSTGRES_PORT}
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      celery:
+        condition: service_started
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+  redis:
+    image: "redis:7-alpine"
+    restart: unless-stopped
+
+  celery:
+    build: .
+    command: celery -A config worker -l INFO -P eventlet
+    volumes:
+      - .:/code
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - DATABASE_HOST=${HOST}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  beat:
+    build: .
+    command: >
+      sh -c "sleep 10 &&  # Даём время PostgreSQL запуститься
+      celery -A config beat -l INFO"
+    environment:
+      - DB_HOST=db  # Критически важно!
+      - DB_PORT=5432
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+networks:
+  default:
+
+volumes:
+  postgres_data:
+  static_volume:
+  redis_data:
