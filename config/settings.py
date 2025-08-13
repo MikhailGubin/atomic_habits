@@ -14,8 +14,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = os.getenv("DATABASE_DEBUG", False) == "True"
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -78,11 +76,11 @@ REST_FRAMEWORK = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("DATABASE_NAME"),
-        "USER": os.getenv("DATABASE_USER"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
-        "HOST": os.getenv("DATABASE_HOST"),
-        "PORT": os.getenv("DATABASE_PORT", default="5432"),
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("HOST"),
+        "PORT": os.getenv("POSTGRES_PORT", default="5432"),
     }
 }
 
@@ -108,6 +106,8 @@ TIME_ZONE = "Europe/Moscow"
 USE_TZ = True
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -153,18 +153,26 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-CORS_ALLOWED_ORIGINS = [
-    os.getenv("FRONTEND_SERVER_URL"),  # адрес вашего фронтенд-сервера
-    os.getenv("BACKEND_SERVER_URL"),  # адрес бэкенд-сервера
-]
+CORS_ALLOWED_ORIGINS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    os.getenv("BACKEND_SERVER_URL"),  # адрес бэкенд-сервера
+    "http://127.0.0.1",
+    "http://127.0.0.1:8000",
 ]
+
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "host.docker.internal"]
+
 
 SWAGGER_SETTINGS = {
     "SECURITY_DEFINITIONS": {
         "Basic": {"type": "basic"},
         "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"},
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis:6379/1',
     }
 }
