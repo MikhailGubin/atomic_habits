@@ -4,6 +4,16 @@ FROM python:3.13-slim
 # Устанавливаем рабочую директорию в контейнере
 WORKDIR /app
 
+# Устанавливаем Poetry
+RUN pip install poetry
+
+# Копируем файл с зависимостями
+COPY pyproject.toml poetry.lock ./
+
+# Устанавливаем зависимости
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-root --only main
+
 # Устанавливаем зависимости системы
 RUN apt-get update && apt-get install -y \
     gcc \
@@ -11,24 +21,14 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Poetry
-RUN pip install poetry
-
-# Копируем файл с зависимостями
-COPY pyproject.toml ./
-
-# Устанавливаем зависимости
-RUN poetry config virtualenvs.create false && \
-    poetry install --no-root --only main
-
 # Копируем остальные файлы проекта в контейнер
 COPY . .
 
 # Открываем порт 8000 для взаимодействия с приложением
-EXPOSE 8000
+EXPOSE 8080
 
 #Создаю директорию для статических файлов
-RUN mkdir -p /app/static
+RUN mkdir -p /app/static /app/staticfiles
 
 # Создаем директорию для медиафайлов
 RUN mkdir -p /app/media

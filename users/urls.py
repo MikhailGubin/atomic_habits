@@ -9,7 +9,7 @@ from users.views import (
     UserDestroyAPIView,
     UserListAPIView,
     UserRetrieveAPIView,
-    UserUpdateAPIView
+    UserUpdateAPIView,
 )
 
 app_name = UsersConfig.name

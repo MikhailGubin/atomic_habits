@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    command: sh -c "python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8080"
+    command: sh -c "python manage.py collectstatic -c --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8080"
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DATABASE_DEBUG}
@@ -10,6 +10,7 @@ services:
       - DB_NAME=${POSTGRES_DB}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -45,6 +46,13 @@ services:
   redis:
     image: "redis:7-alpine"
     restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 1s
+      retries: 5
 
   celery:
     build: .
@@ -68,12 +76,12 @@ services:
       sh -c "sleep 10 &&  # Даём время PostgreSQL запуститься
       celery -A config beat -l INFO"
     environment:
-      - DB_HOST=db  # Критически важно!
-      - DB_PORT=5432
+      - DB_HOST=${HOST}
+      - DB_PORT=${POSTGRES_PORT}
       - DB_NAME=${POSTGRES_DB}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
     depends_on:
       db:
         condition: service_healthy
