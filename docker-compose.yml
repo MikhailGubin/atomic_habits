@@ -25,6 +25,17 @@ services:
       celery:
         condition: service_started
 
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
+    depends_on:
+      - web
+
   db:
     image: postgres:16
     environment:
@@ -72,10 +83,9 @@ services:
 
   beat:
     build: .
-    command: >
-      sh -c "sleep 10 &&  # Даём время PostgreSQL запуститься
-      celery -A config beat -l INFO"
+    command: sh -c "sleep 15 && celery -A config beat -l INFO"
     environment:
+      - SECRET_KEY=${SECRET_KEY}
       - DB_HOST=${HOST}
       - DB_PORT=${POSTGRES_PORT}
       - DB_NAME=${POSTGRES_DB}
