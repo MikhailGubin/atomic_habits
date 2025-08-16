@@ -176,7 +176,7 @@ jobs:
 
       - name: Clean server space
         run: |
-          ssh user@server "docker system prune -f && sudo apt clean"
+          ssh user@158.160.192.46 "docker system prune -f && sudo apt clean"
 
       - name: Run Docker
         run: |
