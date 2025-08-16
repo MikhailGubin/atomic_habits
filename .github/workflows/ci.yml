@@ -184,21 +184,29 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'            
             
-            cd ~/atomic_habits           
+            # Очистка и создание директории
+            rm -rf ~/atomic_habits
+            mkdir -p ~/atomic_habits
             
-            # Останавливаем старый контейнер            
-            sudo docker stop atomic_habits || true
-            sudo docker rm atomic_habits || true
+            # Клонирование репозитория (используем корректный URL)
+            git clone git@github.com:MikhailGubin/atomic_habits.git ~/atomic_habits
             
-            # Собираем и запускаем новый контейнер
-            sudo docker build -t atomic_habits .
+            # Переход в директорию и сборка
+            cd ~/atomic_habits
+            git pull origin main
+            
+            # Остановка и удаление старого контейнера
+            docker stop atomic_habits || true
+            docker rm atomic_habits || true
+            
+            # Сборка и запуск нового контейнера
+            docker build -t atomic_habits .
             docker run -d \
-              --name atomic_habits \
-              --restart unless-stopped \
-              -p 80:8000 \
-              -e SECRET_KEY='${{ secrets.DJANGO_SECRET_KEY }}' \
-              -e ALLOWED_HOSTS='${{ secrets.SERVER_IP }} localhost 127.0.0.1' \              
-              ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
+            --name atomic_habits \
+            --restart unless-stopped \
+            -p 80:8000 \
+            -e SECRET_KEY='${{ secrets.DJANGO_SECRET_KEY }}' \
+            atomic_habits:latest
           EOF
 
       - name: Setup Systemd service
