@@ -211,3 +211,10 @@ jobs:
             sudo systemctl daemon-reload
             sudo systemctl enable myapp.service
           EOF
+      - name: Restart application
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            
+            docker compose -f ~/myapp/docker-compose.yml down || true
+            sudo systemctl start myapp.service          
+          EOF
