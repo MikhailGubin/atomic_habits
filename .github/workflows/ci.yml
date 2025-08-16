@@ -73,6 +73,7 @@ jobs:
           DATABASE_DEBUG: ${{ secrets.DATABASE_DEBUG }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           HOST: ${{ secrets.HOST }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
@@ -99,6 +100,7 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           HOST: db
         run: poetry run python manage.py migrate
 
