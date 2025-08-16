@@ -174,11 +174,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Clean server space
-        run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF' 
-            docker system prune -f && sudo apt clean
-          EOF
+#      - name: Clean server space
+#        run: |
+#          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+#            docker system prune -f && sudo apt clean
+#          EOF
+
       - name: Run Docker
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'  
