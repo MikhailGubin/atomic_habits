@@ -182,10 +182,20 @@ jobs:
 
       - name: Run Docker
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'            
+            # Создаем директорию и клонируем репозиторий
+            mkdir -p ~/atomic_habits
+            git clone https://git@github.com:MikhailGubin/atomic_habits.git ~/atomic_habits || true
+      
+            # Переходим в директорию и собираем образ
             cd ~/atomic_habits
+            git pull origin feature/coursework_9
+            
+            # Останавливаем старый контейнер            
             sudo docker stop atomic_habits || true
             sudo docker rm atomic_habits || true
+            
+            # Собираем и запускаем новый контейнер
             sudo docker build -t atomic_habits .
             docker run -d \
               --name atomic_habits \
