@@ -182,15 +182,17 @@ jobs:
 
       - name: Run Docker
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'  
-            cd ~/atomic_habits          
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd ~/atomic_habits
             sudo docker stop atomic_habits || true
-            sudo docker rm atomic_habits || true        
+            sudo docker rm atomic_habits || true
             sudo docker build -t atomic_habits .
             docker run -d \
               --name atomic_habits \
               --restart unless-stopped \
               -p 80:8000 \
+              -e SECRET_KEY='${{ secrets.DJANGO_SECRET_KEY }}' \
+              -e ALLOWED_HOSTS='${{ secrets.SERVER_IP }} localhost 127.0.0.1' \              
               ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
           EOF
 
