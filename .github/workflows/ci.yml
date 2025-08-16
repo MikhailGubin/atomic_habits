@@ -176,8 +176,9 @@ jobs:
 
       - name: Clean server space
         run: |
-          ssh user@158.160.192.46 "docker system prune -f && sudo apt clean"
-
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF' 
+            docker system prune -f && sudo apt clean
+          EOF
       - name: Run Docker
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'  
