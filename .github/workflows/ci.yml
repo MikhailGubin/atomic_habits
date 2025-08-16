@@ -13,6 +13,7 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          HOST: ${{ secrets.HOST }}
         ports: [ '5432:5432' ]
         options: >-
           --health-cmd pg_isready
@@ -98,7 +99,7 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          HOST: localhost
+          HOST: db
         run: poetry run python manage.py migrate
 
 
