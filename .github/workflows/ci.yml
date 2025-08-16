@@ -175,9 +175,6 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Clean server space
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
@@ -230,9 +227,6 @@ jobs:
           EOF
 
       - name: Verify deployment
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           if ! curl -sSf http://${{ secrets.SERVER_IP }} >/dev/null; then
             echo "::error::App is not running! Checking logs..."
