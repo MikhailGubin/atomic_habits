@@ -175,10 +175,14 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Clean server space
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            docker system prune -f && sudo apt clean
-          EOF
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
+            "docker system prune -af && sudo apt clean -y"
 
       - name: Run Docker
         run: |
@@ -226,10 +230,13 @@ jobs:
             sudo systemctl start atomic_habits.service          
           EOF
 
-#      - name: Verify deployment`
-#        run: |
-#          if ! curl -sSf http://158.160.192.46 >/dev/null; then
-#            echo "::error::App is not running! Checking logs..."
-#            ssh user@158.160.192.46 "sudo docker ps -a && sudo docker logs myapp"
-#            exit 1
-#          fi
+      - name: Verify deployment
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          if ! curl -sSf http://158.160.192.46 >/dev/null; then
+            echo "::error::App is not running! Checking logs..."
+            ssh user@158.160.192.46 "sudo docker ps -a && sudo docker logs myapp"
+            exit 1
+          fi
