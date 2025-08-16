@@ -178,7 +178,6 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
@@ -235,8 +234,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          if ! curl -sSf http://158.160.192.46 >/dev/null; then
+          if ! curl -sSf http://${{ secrets.SERVER_IP }} >/dev/null; then
             echo "::error::App is not running! Checking logs..."
-            ssh user@158.160.192.46 "sudo docker ps -a && sudo docker logs myapp"
+            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
+              "sudo docker ps -a && sudo docker logs atomic_habits"
             exit 1
           fi
