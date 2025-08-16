@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    command: sh -c "python manage.py collectstatic -c --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8080"
+    command: sh -c "python manage.py collectstatic -c --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DATABASE_DEBUG}
@@ -15,7 +15,7 @@ services:
       - .:/app
       - static_volume:/app/staticfiles
     ports:
-      - "8080:8080"
+      - "8000:8000"
     restart: unless-stopped
     depends_on:
       db:
@@ -31,10 +31,12 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - static_volume:/app/staticfiles
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Основной конфиг
+      - static_volume:/app/staticfiles:ro  # Статика Django
+      - media_volume:/app/media:ro  # Медиа Django
     depends_on:
-      - web
+      web:
+        condition: service_started
 
   db:
     image: postgres:16
@@ -104,4 +106,5 @@ networks:
 volumes:
   postgres_data:
   static_volume:
+  media_volume:
   redis_data:

@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
 COPY . .
 
 # Открываем порт 8000 для взаимодействия с приложением
-EXPOSE 8080
+EXPOSE 8000
 
 #Создаю директорию для статических файлов
 RUN mkdir -p /app/static /app/staticfiles
