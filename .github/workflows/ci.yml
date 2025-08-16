@@ -177,7 +177,7 @@ jobs:
       - name: Run Docker
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'  
-            cd ~/knowledge_plus          
+            cd ~/atomic_habits          
             sudo docker stop myapp || true
             sudo docker rm myapp || true        
             sudo docker build -t myapp .
@@ -218,3 +218,10 @@ jobs:
             docker compose -f ~/myapp/docker-compose.yml down || true
             sudo systemctl start myapp.service          
           EOF
+
+      - name: Verify deployment
+        run: |
+          if ! curl -sSf http://${{ secrets.SERVER_IP }} >/dev/null; then
+            echo "::error::Application is not available!"
+            exit 1
+          fi
