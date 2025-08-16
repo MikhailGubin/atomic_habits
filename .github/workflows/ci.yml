@@ -159,10 +159,10 @@ jobs:
         run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }} .
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }} .
 
       - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -178,14 +178,14 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'  
             cd ~/atomic_habits          
-            sudo docker stop myapp || true
-            sudo docker rm myapp || true        
-            sudo docker build -t myapp .
+            sudo docker stop atomic_habits || true
+            sudo docker rm atomic_habits || true        
+            sudo docker build -t atomic_habits .
             docker run -d \
-              --name myapp \
+              --name atomic_habits \
               --restart unless-stopped \
               -p 80:8000 \
-              ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+              ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
           EOF
 
       - name: Setup Systemd service
@@ -199,24 +199,24 @@ jobs:
             [Service]
             Type=simple
             User=${{ secrets.SSH_USER }}
-            WorkingDirectory=/home/${{ secrets.SSH_USER }}/myapp
-            ExecStart=/usr/bin/docker compose -f /home/${{ secrets.SSH_USER }}/myapp/docker-compose.yml up
+            WorkingDirectory=/home/${{ secrets.SSH_USER }}/atomic_habits
+            ExecStart=/usr/bin/docker compose -f /home/${{ secrets.SSH_USER }}/atomic_habits/docker-compose.yml up
             Restart=always
       
             [Install]
-            WantedBy=multi-user.target" | sudo tee /etc/systemd/system/myapp.service
+            WantedBy=multi-user.target" | sudo tee /etc/systemd/system/atomic_habits.service
       
             # Настраиваем права
-            sudo chmod 644 /etc/systemd/system/myapp.service
+            sudo chmod 644 /etc/systemd/system/atomic_habits.service
             sudo systemctl daemon-reload
-            sudo systemctl enable myapp.service
+            sudo systemctl enable atomic_habits.service
           EOF
       - name: Restart application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             
-            docker compose -f ~/myapp/docker-compose.yml down || true
-            sudo systemctl start myapp.service          
+            docker compose -f ~/atomic_habits/docker-compose.yml down || true
+            sudo systemctl start atomic_habits.service          
           EOF
 
       - name: Verify deployment
