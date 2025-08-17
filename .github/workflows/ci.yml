@@ -202,10 +202,9 @@ jobs:
               -e DB_HOST='localhost' \
               -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
               -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
-              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
-              -e POSTGRES_PORT='${{ secrets.POSTGRES_PORT }}' \
+              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \              
               ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
-          REMOTE_EOF                   
+          REMOTE_EOF
 
       - name: Setup Systemd service
         run: |
