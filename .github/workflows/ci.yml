@@ -183,16 +183,13 @@ jobs:
       - name: Run Docker
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'            
-                        
-            #sudo rm -rf ~/atomic_habits  # Полностью удаляем директорию
-            #git clone -b feature/coursework_9 git@github.com:MikhailGubin/atomic_habits.git
-            #cd ~/atomic_habits
-          
-            # Загрузка образ из репозитория в Docker Hub
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}           
+                                            
             # Остановка и удаление старого контейнера
             docker stop atomic_habits || true
             docker rm atomic_habits || true
+          
+            # Загрузка образ из репозитория в Docker Hub            
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
             
             # Запуск нового контейнера            
             docker run -d \
@@ -201,10 +198,10 @@ jobs:
               -p 80:8000 \
               -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
               -e DB_HOST='localhost' \
-              -e POSTGRES_DB: ${{ secrets.POSTGRES_DB }} \
-              -e POSTGRES_USER: ${{ secrets.POSTGRES_USER }} \
-              -e POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }} \
-              -e POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }} \
+              -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+              -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+              -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+              -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
               ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
           EOF          
 
