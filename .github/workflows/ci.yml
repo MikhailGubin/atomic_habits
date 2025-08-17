@@ -196,11 +196,18 @@ jobs:
               --restart unless-stopped \
               -p 80:8000 \
               -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
-              -e DB_HOST='localhost' \
+              -e HOST='localhost' \
               -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
               -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
               -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
               ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
+          
+              # Ждем готовности (макс 2 минуты)
+              timeout 120 bash -c 'while [[ $(docker inspect -f {{.State.Health.Status}} atomic_habits) != "healthy" ]]; do sleep 5; done'
+        
+              # Проверка результата
+              docker inspect atomic_habits | jq .[].State.Health
+              docker logs atomic_habits --tail 50
           REMOTE_EOF
 
       - name: Setup Systemd service
