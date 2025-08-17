@@ -182,28 +182,30 @@ jobs:
 
       - name: Run Docker
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'            
-                                            
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'REMOTE_EOF'
             # Остановка и удаление старого контейнера
             docker stop atomic_habits || true
             docker rm atomic_habits || true
           
-            # Загрузка образ из репозитория в Docker Hub            
+            # Авторизация в Docker Hub (если нужно)
+            echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+          
+            # Загрузка образа
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
-            
-            # Запуск нового контейнера            
+          
+            # Запуск нового контейнера
             docker run -d \
               --name atomic_habits \
               --restart unless-stopped \
               -p 80:8000 \
               -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
               -e DB_HOST='localhost' \
-              -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
-              -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
-              -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
-              -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
+              -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
+              -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
+              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
+              -e POSTGRES_PORT='${{ secrets.POSTGRES_PORT }}' \
               ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
-          EOF          
+          REMOTE_EOF                   
 
       - name: Setup Systemd service
         run: |
