@@ -185,10 +185,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'REMOTE_EOF'
             # Остановка и удаление старого контейнера
             docker stop atomic_habits || true
-            docker rm atomic_habits || true
-          
-            # Авторизация в Docker Hub (если нужно)
-            echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+            docker rm atomic_habits || true          
           
             # Загрузка образа
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
@@ -202,7 +199,7 @@ jobs:
               -e DB_HOST='localhost' \
               -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
               -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
-              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \              
+              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
               ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
           REMOTE_EOF
 
