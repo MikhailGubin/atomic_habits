@@ -184,53 +184,21 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'            
                         
-            # 2. Переходим в каталог с репозиторием, если он еще не там  
-            cd ${{ secrets.DEPLOY_DIR }} || exit 1 
-
-            # 4. Клонируем репозиторий (если его там нет, или если нужно обновить)
-            # Убедитесь, что вы в правильном месте. Если вы уже клонировали,
-            # лучше использовать git pull, если это возможно, или сначала удалить старый репо.
-            # Для безопасности, будем предполагать, что вы хотите именно клонировать:
-            if [ ! -d "atomic_habits" ]; then
-              git clone git@github.com:MikhailGubin/atomic_habits.git
-              cd ~/atomic_habits || exit 1
-            else
-              cd ~/atomic_habits || exit 1
-              git pull # Обновляем, если уже есть
-            fi
-
-            # 5. Теперь, когда мы в каталоге с Dockerfile, мы можем собирать образ
-            # ПРОВЕРЬТЕ: Существует ли Dockerfile в /home/***/atomic_habits?
-            # Если нет, то вам нужно будет его добавить или изменить способ сборки.
-            # Если Dockerfile есть, то эта команда должна работать:
-            if [ -f "Dockerfile" ]; then
-              echo "Building Docker image..."
-              docker build -t atomic_habits:latest . # Собираем образ из текущего каталога
-              echo "Image built successfully."
-            else
-              echo "::error::Dockerfile not found in $(pwd)!"
-              exit 1
-            fi
-
-            # 6. Проверка, существует ли контейнер. Если нет, то запускаем.
-            if ! docker ps -a --filter "name=atomic_habits" | grep -q "atomic_habits"; then
-              echo "Container 'atomic_habits' not found. Starting a new one..."
-              # Замените command и ports на те, что нужны вашему приложению
-              # Важно: Если вы ранее пробрасывали порт 80->8000, используйте это:
-              docker run -d --name atomic_habits -p 80:8000 atomic_habits:latest
-              # Если вы хотите запускать приложение именно командой "python manage.py runserver"
-              # и это было указано в Dockerfile как CMD или ENTRYPOINT, то:
-              # docker run -d --name atomic_habits -p 80:8000 atomic_habits:latest python manage.py runserver
-            else
-              echo "Container 'atomic_habits' already exists. Stopping and removing it to restart..."
-              docker stop atomic_habits
-              docker rm atomic_habits
-              echo "Container removed. Starting a new one..."
-              # Повторно запускаем, как выше
-              docker run -d --name atomic_habits -p 80:8000 atomic_habits:latest
-            fi
-          
-            echo "Container 'atomic_habits' is running."
+            sudo rm -rf ~/atomic_habits  # Полностью удаляем директорию
+            git clone -b feature/coursework_9 git@github.com:MikhailGubin/atomic_habits.git
+            cd ~/atomic_habits
+                        
+            # Остановка и удаление старого контейнера
+            docker stop atomic_habits || true
+            docker rm atomic_habits || true
+            
+            # Запуск нового контейнера            
+            docker run -d \
+              --name atomic_habits \
+              --restart unless-stopped \
+              -p 80:8000 \
+              -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
+              ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
           EOF
 
       - name: Setup Systemd service
