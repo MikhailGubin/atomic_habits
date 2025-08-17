@@ -180,19 +180,6 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
             "docker system prune -af && sudo apt clean -y"
 
-      - name: Run PostgreSQL
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            # Настройка PostgreSQL
-            sudo apt-get update -q
-            sudo apt-get install -y postgresql postgresql-contrib
-            sudo systemctl start postgresql
-          
-            # Создание БД
-            sudo -u postgres psql -c "CREATE USER ${{ secrets.POSTGRES_USER }} WITH PASSWORD '${{ secrets.POSTGRES_PASSWORD }}';"
-            sudo -u postgres psql -c "CREATE DATABASE ${{ secrets.POSTGRES_DB }} OWNER ${{ secrets.POSTGRES_USER }};"
-          EOF
-
       - name: Run Docker
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
