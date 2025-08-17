@@ -184,10 +184,12 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'            
                         
-            sudo rm -rf ~/atomic_habits  # Полностью удаляем директорию
-            git clone -b feature/coursework_9 git@github.com:MikhailGubin/atomic_habits.git
-            cd ~/atomic_habits
-                        
+            #sudo rm -rf ~/atomic_habits  # Полностью удаляем директорию
+            #git clone -b feature/coursework_9 git@github.com:MikhailGubin/atomic_habits.git
+            #cd ~/atomic_habits
+          
+            # Загрузка образ из репозитория в Docker Hub
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}           
             # Остановка и удаление старого контейнера
             docker stop atomic_habits || true
             docker rm atomic_habits || true
