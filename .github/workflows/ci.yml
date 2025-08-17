@@ -200,8 +200,13 @@ jobs:
               --restart unless-stopped \
               -p 80:8000 \
               -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
+              -e DB_HOST='localhost' \
+              -e POSTGRES_DB: ${{ secrets.POSTGRES_DB }} \
+              -e POSTGRES_USER: ${{ secrets.POSTGRES_USER }} \
+              -e POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }} \
+              -e POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }} \
               ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
-          EOF
+          EOF          
 
       - name: Setup Systemd service
         run: |
