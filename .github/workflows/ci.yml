@@ -182,25 +182,28 @@ jobs:
 
       - name: Create .env file on server
         run: |
-          cd ~/atomic_habits && cat << EOF > .env
-            SECRET_KEY=${{ secrets.SECRET_KEY }}
-            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            HOST=${{ secrets.HOST }}
-            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
-            POSTGRES_HOST_AUTH_METHOD=${{ secrets.POSTGRES_HOST_AUTH_METHOD }}
-            ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
-            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
-            EMAIL_BACKEND=${{ secrets.EMAIL_BACKEND }}
-            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
-            EMAIL_PORT=${{ secrets.EMAIL_PORT }}
-            EMAIL_USE_TLS=${{ secrets.EMAIL_USE_TLS }}
-            EMAIL_USE_SSL=${{ secrets.EMAIL_USE_SSL }}
-            EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
-            EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
-            CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}
-            CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }}
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            mkdir -p ~/atomic_habits
+            cd ~/atomic_habits && cat > .env << 'EOL'
+              SECRET_KEY=${{ secrets.SECRET_KEY }}
+              POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+              POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+              POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+              HOST=${{ secrets.HOST }}
+              POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+              POSTGRES_HOST_AUTH_METHOD=${{ secrets.POSTGRES_HOST_AUTH_METHOD }}
+              ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+              ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+              EMAIL_BACKEND=${{ secrets.EMAIL_BACKEND }}
+              EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+              EMAIL_PORT=${{ secrets.EMAIL_PORT }}
+              EMAIL_USE_TLS=${{ secrets.EMAIL_USE_TLS }}
+              EMAIL_USE_SSL=${{ secrets.EMAIL_USE_SSL }}
+              EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+              EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+              CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}
+              CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }}
+            EOL
           EOF
 
       - name: Run Docker
