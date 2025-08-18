@@ -155,12 +155,12 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1",
-    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8080",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1",
-    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8080",
 ]
 
 # ALLOWED_HOSTS = ["127.0.0.1", "localhost", "host.docker.internal"]
