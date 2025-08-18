@@ -293,8 +293,14 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             
-            docker compose -f ~/atomic_habits/docker-compose.yml down || true
-            sudo systemctl start atomic_habits.service          
+             # Создаем временный измененный compose-файл
+            sed "s|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}|" docker-compose.yml > docker-compose.tmp.yml
+  
+            # Запускаем с модифицированным файлом
+            docker compose -f docker-compose.tmp.yml --env-file .env up -d --build
+            
+            # Удаляем временный файл (опционально)
+            rm docker-compose.tmp.yml         
           EOF
 
       - name: Verify deployment
