@@ -212,6 +212,12 @@ jobs:
           
             # Запуск нового контейнера
             docker run -d \
+              -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
+              -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
+              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
+              postgres
+          
+            docker run -d \
               --name atomic_habits \
               --add-host=host.docker.internal:host-gateway \
               --restart unless-stopped \
