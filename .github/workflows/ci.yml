@@ -211,6 +211,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
           
             # Запуск нового контейнера
+            docker network create my-net
             docker run -d \
               -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
               -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
