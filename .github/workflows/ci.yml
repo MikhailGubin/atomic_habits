@@ -180,6 +180,10 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
             "docker system prune -af && sudo apt clean -y"
 
+      - name: Copy .env file to server
+        run: |
+          scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/atomic_habits/
+
       - name: Run Docker
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -202,7 +206,7 @@ jobs:
           CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'REMOTE_EOF'
-            
+            cd ~/atomic_habits
             # Остановка и удаление старого контейнера
             docker stop atomic_habits || true
             docker rm atomic_habits || true          
@@ -210,32 +214,14 @@ jobs:
             # Загрузка образа
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
           
-            # Запуск нового контейнера
-            docker network create my-net
-            docker run -d \
-              --name db \
-              -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
-              -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
-              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
-              --network my-net \
-              postgres
-          
-            docker run -d \
-              --name atomic_habits \
-              --add-host=host.docker.internal:host-gateway \
-              --restart unless-stopped \
-              -p 80:8000 \
-              -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
-              -e HOST='${{ secrets.HOST }}' \
-              -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
-              -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
-              -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
-              --network my-net \
-              ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
-                  
-            # Проверка результата
-            docker inspect atomic_habits | jq .[].State.Health
-            docker logs atomic_habits --tail 50
+            # Создаем временный измененный compose-файл
+            sed "s|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}|" docker-compose.yml > docker-compose.tmp.yml
+  
+            # Запускаем с модифицированным файлом
+            docker compose -f docker-compose.tmp.yml up -d
+            
+            # Удаляем временный файл (опционально)
+            rm docker-compose.tmp.yml
           REMOTE_EOF
 
       - name: Setup Systemd service
