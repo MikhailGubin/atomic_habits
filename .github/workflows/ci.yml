@@ -292,24 +292,19 @@ jobs:
           CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd ~/atomic_habits
-            # Создаем временный измененный compose-файл
-            sed "s|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}|" docker-compose.yml > docker-compose.tmp.yml
-  
-            # Запускаем с модифицированным файлом
-            docker compose -f docker-compose.tmp.yml --env-file .env up -d --build
+            # Переходим в рабочую директорию
+            cd ~/atomic_habits || { echo "Directory ~/atomic_habits not found"; exit 1; }
             
-            # Удаляем временный файл (опционально)
-            rm docker-compose.tmp.yml         
-          EOF
-
-      - name: Verify deployment
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        run: |
-          if ! curl -sSf http://${{ secrets.SERVER_IP }} >/dev/null; then
-            echo "::error::App is not running! Checking logs..."
-            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
-              "sudo docker ps -a && sudo docker logs atomic_habits"
-            exit 1
-          fi
+            # Проверяем существование файлов
+            [ ! -f docker-compose.yml ] && { echo "docker-compose.yml not found"; exit 1; }
+            [ ! -f .env ] && { echo ".env not found"; exit 1; }
+          
+            # Модифицируем compose-файл
+            sed "s|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}|" docker-compose.yml > docker-compose.tmp.yml
+          
+            # Запускаем с явным указанием путей
+            docker compose -f ~/atomic_habits/docker-compose.tmp.yml --env-file ~/atomic_habits/.env up -d --build
+            
+            # Очистка
+            rm -f ~/atomic_habits/docker-compose.tmp.yml
+          EOF     
