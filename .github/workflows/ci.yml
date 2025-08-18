@@ -1,6 +1,6 @@
 name: Django CI/CD Pipeline
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   lint:
@@ -213,6 +213,7 @@ jobs:
             # Запуск нового контейнера
             docker network create my-net
             docker run -d \
+              --name db \
               -e POSTGRES_DB='${{ secrets.POSTGRES_DB }}' \
               -e POSTGRES_USER='${{ secrets.POSTGRES_USER }}' \
               -e POSTGRES_PASSWORD='${{ secrets.POSTGRES_PASSWORD }}' \
