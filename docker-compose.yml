@@ -16,7 +16,6 @@ services:
       - static_volume:/app/staticfiles
     ports:
       - "8000:8000"
-    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
@@ -49,7 +48,6 @@ services:
       - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
     healthcheck:
         test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
         interval: 30s
@@ -58,7 +56,6 @@ services:
 
   redis:
     image: "redis:7-alpine"
-    restart: unless-stopped
     ports:
       - "6379:6379"
     healthcheck:
@@ -76,7 +73,6 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - DATABASE_HOST=${HOST}
-    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
