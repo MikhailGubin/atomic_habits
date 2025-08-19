@@ -138,6 +138,33 @@ jobs:
             ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} \
             "docker system prune -af && sudo apt clean -y"     
 
+      - name: Create .env file on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'REMOTE_EOF'
+            mkdir -p ~/atomic_habits
+            cd ~/atomic_habits && cat > .env << 'ENV_EOF'
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            HOST=${{ secrets.HOST }}
+            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}            
+            ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            EMAIL_BACKEND=${{ secrets.EMAIL_BACKEND }}
+            EMAIL_HOST=${{ secrets.EMAIL_HOST }}
+            EMAIL_PORT=${{ secrets.EMAIL_PORT }}
+            EMAIL_USE_TLS=${{ secrets.EMAIL_USE_TLS }}
+            EMAIL_USE_SSL=${{ secrets.EMAIL_USE_SSL }}
+            EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+            EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+            CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}
+            CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }}
+            DOCKER_HUB_USERNAME==${{ secrets.DOCKER_HUB_USERNAME }}
+            IMAGE_TAG==${{ github.sha }}
+            ENV_EOF
+          REMOTE_EOF
+
       - name: Run Docker
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
