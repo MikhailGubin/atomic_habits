@@ -144,6 +144,7 @@ jobs:
             mkdir -p ~/atomic_habits
             cd ~/atomic_habits && cat > .env << 'ENV_EOF'
             SECRET_KEY=${{ secrets.SECRET_KEY }}
+            DEBUG=${{ secrets.DATABASE_DEBUG }}
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
@@ -160,15 +161,15 @@ jobs:
             EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
             CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}
             CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }}
-            DOCKER_HUB_USERNAME==${{ secrets.DOCKER_HUB_USERNAME }}
-            IMAGE_TAG==${{ github.sha }}
+            DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
+            IMAGE_TAG=${{ github.sha }}
             ENV_EOF
           REMOTE_EOF
 
       - name: Run Docker
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DATABASE_DEBUG: ${{ secrets.DATABASE_DEBUG }}
+          DEBUG: ${{ secrets.DATABASE_DEBUG }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
