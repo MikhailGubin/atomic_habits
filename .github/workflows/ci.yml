@@ -233,40 +233,10 @@ jobs:
           
             # Загрузка образа
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}
-          
-            # Создаем временный измененный compose-файл
-            sed "s|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}|" docker-compose.yml > docker-compose.tmp.yml
-  
-            # Запускаем с модифицированным файлом
-            docker compose -f docker-compose.tmp.yml --env-file .env up -d --build
-            
-            # Удаляем временный файл (опционально)
-            rm docker-compose.tmp.yml
+                       
+            # Запускаем docker-compose.yml
+            docker compose --env-file .env up -d --build            
           REMOTE_EOF
-
-      - name: Setup Systemd service
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            # Создаем сервисный файл с sudo
-            echo "[Unit]
-            Description=My Application
-            After=network.target
-      
-            [Service]
-            Type=simple
-            User=${{ secrets.SSH_USER }}
-            WorkingDirectory=/home/${{ secrets.SSH_USER }}/atomic_habits
-            ExecStart=/usr/bin/docker compose -f /home/${{ secrets.SSH_USER }}/atomic_habits/docker-compose.yml --env-file .env up -d --build
-            Restart=always
-      
-            [Install]
-            WantedBy=multi-user.target" | sudo tee /etc/systemd/system/atomic_habits.service
-      
-            # Настраиваем права
-            sudo chmod 644 /etc/systemd/system/atomic_habits.service
-            sudo systemctl daemon-reload
-            sudo systemctl enable atomic_habits.service
-          EOF
 
       - name: Restart application
         env:
@@ -296,13 +266,7 @@ jobs:
             # Проверяем существование файлов
             [ ! -f docker-compose.yml ] && { echo "docker-compose.yml not found"; exit 1; }
             [ ! -f .env ] && { echo ".env not found"; exit 1; }
-          
-            # Модифицируем compose-файл
-            sed "s|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/atomic_habits:${{ github.sha }}|" docker-compose.yml > docker-compose.tmp.yml
-          
+                                
             # Запускаем с явным указанием путей
-            docker compose -f ~/atomic_habits/docker-compose.tmp.yml --env-file ~/atomic_habits/.env up -d --build
-            
-            # Очистка
-            rm -f ~/atomic_habits/docker-compose.tmp.yml
+            docker compose --env-file ~/atomic_habits/.env up -d --build
           EOF
