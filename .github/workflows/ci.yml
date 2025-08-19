@@ -87,8 +87,7 @@ jobs:
           echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
           echo "HOST=${{ secrets.HOST }}" >> .env
-          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
-          echo "POSTGRES_HOST_AUTH_METHOD=${{ secrets.POSTGRES_HOST_AUTH_METHOD }}" >> .env
+          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env         
           echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
           echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
           echo "EMAIL_BACKEND=${{ secrets.EMAIL_BACKEND }}" >> .env
@@ -123,7 +122,7 @@ jobs:
 
       - name: Wait for PostgreSQL
         run: |
-          until pg_isready -h db -p 5432 -U ${{ secrets.POSTGRES_USER }}; do
+          until pg_isready -h localhost -p 5432 -U ${{ secrets.POSTGRES_USER }}; do
             sleep 1        
           done
 
@@ -190,8 +189,7 @@ jobs:
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             HOST=${{ secrets.HOST }}
-            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
-            POSTGRES_HOST_AUTH_METHOD=${{ secrets.POSTGRES_HOST_AUTH_METHOD }}
+            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}            
             ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
             ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
             EMAIL_BACKEND=${{ secrets.EMAIL_BACKEND }}
