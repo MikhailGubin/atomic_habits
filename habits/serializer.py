@@ -6,7 +6,7 @@ from habits.validators import (
     validate_duration_for_useful_habit,
     validate_periodicity_for_habit,
     validate_pleasant_habit_without_reward_and_related_habit,
-    validate_related_habit_must_be_pleasant
+    validate_related_habit_must_be_pleasant,
 )
 
 
