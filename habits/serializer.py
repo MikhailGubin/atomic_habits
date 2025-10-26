@@ -15,11 +15,9 @@ class HabitSerializer(serializers.ModelSerializer):
     Сериализатор для модели Habit с кастомными валидаторами.
     """
 
-    # Если вы хотите, чтобы в UI/API для 'related_habit' отображались только приятные привычки,
-    # и чтобы пользователю было легче выбрать, можно отфильтровать queryset здесь:
     related_habit = serializers.PrimaryKeyRelatedField(
-        queryset=Habit.objects.filter(is_pleasant=True),  # Важно: Фильтруем только приятные привычки
-        allow_null=True,  # Позволяет полю быть пустым
+        queryset=Habit.objects.filter(is_pleasant=True),  # Фильтруем только приятные привычки
+        allow_null=True,
         required=False,  # Необязательное поле при создании/обновлении
         label="Связанная привычка",
         help_text="Приятная привычка, которая выполняется в качестве вознаграждения.",

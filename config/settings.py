@@ -163,7 +163,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8080",
 ]
 
-# ALLOWED_HOSTS = ["127.0.0.1", "localhost", "host.docker.internal"]
 ALLOWED_HOSTS = ["*"]
 
 SWAGGER_SETTINGS = {
